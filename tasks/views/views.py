@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions
-from tasks.models.models import Task
+from tasks.models.Models import Task
 from tasks.serializers.serializers import TaskSerializer
 
 class TaskListCreateView(generics.ListCreateAPIView):
