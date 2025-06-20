@@ -14,7 +14,7 @@ class TaskListView(generics.ListAPIView):
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'category', 'due_date', 'priority', 'completed']
+    filterset_fields = ['status', 'category', 'due_date', 'priority']
     search_fields = ['title', 'description']
     ordering_fields = ['priority', 'due_date', 'created_at']
     ordering = ['priority']
@@ -30,7 +30,6 @@ class TaskListView(generics.ListAPIView):
             OpenApiParameter(name='category', type=int),
             OpenApiParameter(name='priority', type=str),
             OpenApiParameter(name='due_date', type=str),
-            OpenApiParameter(name='completed', type=bool),
         ]
     )
     def get(self, request, *args, **kwargs):
