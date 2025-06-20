@@ -1,4 +1,5 @@
 from rest_framework import generics, permissions, filters
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from tasks.models.Models import Task
 from tasks.serializers.serializers import TaskSerializer
@@ -8,6 +9,7 @@ from rest_framework import status, permissions
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.utils import extend_schema_view
 from tasks.serializers.serializers import TaskBatchUpdateSerializer, TaskBatchDeleteSerializer
+from django.utils.timezone import now
 
 
 class TaskListView(generics.ListAPIView):
@@ -90,3 +92,31 @@ class TaskBatchDeleteView(APIView):
         Task.objects.filter(uid__in=ids, owner=request.user).delete()
 
         return Response({"message": "Tasks deleted."}, status=status.HTTP_200_OK)
+
+
+class TaskAnalyticsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        tasks = Task.objects.filter(owner=user)
+
+        COMPLETED_STATUS_ID = 7
+
+        completed_tasks = tasks.filter(status_id=COMPLETED_STATUS_ID).count()
+        overdue_tasks = tasks.filter(
+            due_date__lt=now().date()
+        ).exclude(status_id=COMPLETED_STATUS_ID).count()
+
+        completed = tasks.filter(status_id=COMPLETED_STATUS_ID).exclude(created_at__isnull=True, updated_at__isnull=True)
+        if completed.exists():
+            total_days = sum([(task.updated_at - task.created_at).days for task in completed])
+            avg_time = total_days / completed.count()
+        else:
+            avg_time = 0
+
+        return Response({
+            "completed_tasks": completed_tasks,
+            "overdue_tasks": overdue_tasks,
+            "avg_completion_days": avg_time
+        })

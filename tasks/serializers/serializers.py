@@ -21,7 +21,7 @@ class TaskSerializer(serializers.ModelSerializer):
         if not value.strip():
             raise serializers.ValidationError("Title cannot be empty.")
         return value
-
+    
     def validate_due_date(self, value):
         if value and value < timezone.now().date():
             raise serializers.ValidationError("Due date cannot be in the past.")

@@ -8,7 +8,7 @@
 # Python cache
 __pycache__/
 *.pyc
-
+git commit -m "Removed .idea folder from Git tracking"
 # SQLite database
 db.sqlite3
 *.sqlite3
